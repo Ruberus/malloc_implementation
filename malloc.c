@@ -15,31 +15,33 @@ void * malloc(size_t size_req){
 	struct free_list_metadata* temp=head;
 	while (temp!=NULL){
 		if(temp->size>=size_req){
-			if (temp->size==size_req){
-				if(temp->prev==NULL){
+			if(temp->size>sizeof(struct free_list_metadata)){
+					//split the free_list block
+					struct free_list_metadata* split_block=(char *)temp+size_req+sizeof(struct free_list_metadata); //had to convert it to (char*)temp to add bytes specifically
+					split_block->size=temp->size-(size_req+sizeof(struct free_list_metadata));
+					temp->size=size_req;
+					split_block->prev=temp->prev;
+					split_block->next=temp->next;
+			}
+
+					#allocating the block
+					if(temp->prev==NULL){
 					temp->next->prev=NULL;
 					temp->status=1;
-				}
+					}
 				else if(temp->next==NULL){
 					temp->prev->next=NULL;
 					temp->status=1;
-				}
+					}
 				else{
 					temp->status=1;	
 					temp->prev->next=temp->next;
 					temp->next->prev=temp->prev;
-				}
-			}
-			else if(temp->size>size_req){
-				if(temp->size>sizeof(free_list_metadata){
-					//split the free_list block
-					struct free_list_metadata* split_block=(char *)temp+size_req+sizeof(struct free_list_metadata); //had to convert it to (char*)temp to add bytes specifically
-					split_block->size=temp->size-(size_req+sizeof(struct free_list_metadata);
-					temp->size=size_req;
-					split_block->prev=temp->prev;
-					split_block->next=temp->next;
-				}
-			}
+					}
+				
+		    
+		}
+
 		temp=temp->next;
 	}
 	if(temp==NULL){
